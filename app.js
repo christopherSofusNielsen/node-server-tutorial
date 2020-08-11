@@ -1,9 +1,27 @@
-const http = require("http");
+const path = require("path");
+const express = require("express");
+const app = express();
 
-const routes = require("./routes");
+app.set("view engine", "ejs");
+app.set("views", "views");
 
-console.log(routes.someText);
+//routes
+const adminData = require("./routes/admin");
+const shopRoutes = require("./routes/shop");
 
-const server = http.createServer(routes.handler);
+/**
+ * middleware basic
+ */
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 
-server.listen(3000);
+//routes
+app.use("/admin", adminData.routes);
+app.use(shopRoutes);
+
+app.use((req, res) => {
+  res.render("404", { title: "Page not found", path: '' });
+  //res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+});
+
+app.listen(3000);
